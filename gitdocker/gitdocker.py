@@ -7,16 +7,21 @@ class GitDocker(DockWidget):
         super().__init__()
         self.setWindowTitle("Git docker")
 
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel(i18n('Foo')))
+        self.label = QLabel('')
 
-        widget = QWidget()
-        widget.setLayout(layout)
+        self.layout = QHBoxLayout()
+        self.layout.addWidget(self.label)
 
-        self.setWidget(widget)
+        self.widget = QWidget()
+        self.widget.setLayout(self.layout)
+
+        self.setWidget(self.widget)
 
     def canvasChanged(self, canvas):
-        pass
+        DOC = Krita.instance().activeDocument()
+
+        if DOC is not None:
+            self.label.setText(DOC.fileName())
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
