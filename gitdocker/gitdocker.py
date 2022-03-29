@@ -22,10 +22,21 @@ class GitDocker(DockWidget):
         self.setWidget(self.widget)
 
     def canvasChanged(self, canvas):
-        REPO = self.current_repo()
+        PATH = self.current_file_path()
 
-        if REPO is not None:
-            self.label.setText('Git')
+        if PATH is None:
+            return
+
+        REPO = Repo(PATH, search_parent_directories=True)
+
+        if REPO is None:
+            return
+
+        s = ''
+        for commit in REPO.iter_commits(paths=PATH):
+            s += commit.message+'\n'
+
+        self.label.setText(s)
 
     def current_repo(self) -> Optional[Repo]:
         PATH = self.current_file_path()
