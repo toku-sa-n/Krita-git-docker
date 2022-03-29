@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=myplugin
+X-Python-2-Compatible=false
+Name=Git docker
+Comment=A docker to view file revisions managed by Git.
