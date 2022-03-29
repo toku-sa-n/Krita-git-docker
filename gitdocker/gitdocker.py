@@ -8,7 +8,7 @@ class GitDocker(DockWidget):
         self.setWindowTitle("Git docker")
         self.widget = QWidget()
         self.main_layout = QHBoxLayout()
-        self.main_layout.addWidget(QPushButton(i18n('Foo')))
+        self.main_layout.addWidget(QLabel(i18n('Foo')))
         self.widget.setLayout(self.main_layout)
         self.setWidget(self.widget)
 
