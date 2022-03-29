@@ -5,8 +5,8 @@ from git import Repo
 
 class TestGitMethods(unittest.TestCase):
     def test_git_init(self):
-        dir = tempfile.TemporaryFile()
-        repo = Repo.init(dir.name)
+        directory = tempfile.TemporaryFile()
+        repo = Repo.init(directory.name)
         assert not repo.bare
 
 
