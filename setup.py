@@ -9,4 +9,5 @@ setup(
     author='Hiroki Tokunaga',
     author_email='tokusan441@gmail.com',
     url='https://github.com/toku-sa-n/Krita-git-docker',
+    install_requires=['git'],
     packages=['gitdocker'],)
