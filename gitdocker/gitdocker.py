@@ -11,6 +11,7 @@ class GitDocker(DockWidget):
         self.setWindowTitle("Git docker")
 
         self.repo = None
+        self.path = None
         self.commits = []
 
         self.label = QLabel('')
@@ -28,19 +29,19 @@ class GitDocker(DockWidget):
         self.setWidget(self.widget)
 
     def canvasChanged(self, canvas):
-        PATH = self.current_file_path()
+        self.path = self.current_file_path()
 
-        if PATH is None:
+        if self.path is None:
             return
 
-        self.repo = Repo(PATH, search_parent_directories=True)
+        self.repo = Repo(self.path, search_parent_directories=True)
 
         if self.repo is None:
             return
 
         MAX_ITEMS = 10
         self.commits = list(itertools.islice(
-            self.repo.iter_commits(paths=PATH), MAX_ITEMS))
+            self.repo.iter_commits(paths=self.path), MAX_ITEMS))
 
         self.commitComboBox.clear()
         self.commitComboBox.addItems(map(lambda c: c.summary, self.commits))
