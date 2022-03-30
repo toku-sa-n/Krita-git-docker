@@ -42,8 +42,7 @@ class GitDocker(DockWidget):
             REPO.iter_commits(paths=PATH), MAX_ITEMS))
 
         self.commitComboBox.clear()
-        self.commitComboBox.addItems(
-            map(lambda c: next(iter(c.message.splitlines()), ''), self.commits))
+        self.commitComboBox.addItems(map(lambda c: c.summary, self.commits))
 
     def current_file_path(self) -> Optional[str]:
         DOC = Krita.instance().activeDocument()
