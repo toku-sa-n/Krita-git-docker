@@ -11,11 +11,9 @@ class GitDocker(DockWidget):
         self.setWindowTitle("Git docker")
 
         self.label = QLabel('')
-        self.git_label = QLabel('')
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
-        self.layout.addWidget(self.git_label)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
