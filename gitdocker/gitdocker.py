@@ -10,8 +10,12 @@ class GitDocker(DockWidget):
         super().__init__()
         self.setWindowTitle("Git docker")
 
+        self.commits = []
+
         self.label = QLabel('')
         self.commitComboBox = QComboBox()
+        self.commitComboBox.currentIndexChanged.connect(
+            self.commit_combo_box_current_index_changed)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
@@ -34,19 +38,12 @@ class GitDocker(DockWidget):
             return
 
         MAX_ITEMS = 10
-        s = ''
-        for commit in itertools.islice(REPO.iter_commits(paths=PATH), MAX_ITEMS):
-            s += next(iter(commit.message.splitlines()), '')+'\n'
+        self.commits = list(itertools.islice(
+            REPO.iter_commits(paths=PATH), MAX_ITEMS))
 
-        self.label.setText(s)
-
-    def current_repo(self) -> Optional[Repo]:
-        PATH = self.current_file_path()
-
-        if PATH is not None:
-            return Repo(PATH, search_parent_directories=True)
-        else:
-            return None
+        self.commitComboBox.clear()
+        self.commitComboBox.addItems(
+            map(lambda c: next(iter(c.message.splitlines()), ''), self.commits))
 
     def current_file_path(self) -> Optional[str]:
         DOC = Krita.instance().activeDocument()
@@ -55,6 +52,9 @@ class GitDocker(DockWidget):
             return DOC.fileName()
         else:
             return None
+
+    def commit_combo_box_current_index_changed(self, index):
+        self.label.setText(str(index))
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
