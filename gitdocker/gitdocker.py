@@ -53,7 +53,7 @@ class GitDocker(DockWidget):
             return None
 
     def commit_combo_box_current_index_changed(self, index):
-        self.label.setText(str(index))
+        self.label.setText(self.commits[index].hexsha)
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
