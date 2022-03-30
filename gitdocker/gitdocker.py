@@ -2,6 +2,7 @@ from krita import *
 from PyQt5.QtWidgets import *
 from typing import Optional
 from git import Repo
+import itertools
 
 
 class GitDocker(DockWidget):
@@ -32,9 +33,10 @@ class GitDocker(DockWidget):
         if REPO is None:
             return
 
+        MAX_ITEMS = 10
         s = ''
-        for commit in REPO.iter_commits(paths=PATH):
-            s += commit.message+'\n'
+        for commit in itertools.islice(REPO.iter_commits(paths=PATH), MAX_ITEMS):
+            s += next(iter(commit.message.splitlines()), '')+'\n'
 
         self.label.setText(s)
 
