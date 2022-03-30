@@ -10,6 +10,7 @@ class GitDocker(DockWidget):
         super().__init__()
         self.setWindowTitle("Git docker")
 
+        self.repo = None
         self.commits = []
 
         self.label = QLabel('')
@@ -32,14 +33,14 @@ class GitDocker(DockWidget):
         if PATH is None:
             return
 
-        REPO = Repo(PATH, search_parent_directories=True)
+        self.repo = Repo(PATH, search_parent_directories=True)
 
-        if REPO is None:
+        if self.repo is None:
             return
 
         MAX_ITEMS = 10
         self.commits = list(itertools.islice(
-            REPO.iter_commits(paths=PATH), MAX_ITEMS))
+            self.repo.iter_commits(paths=PATH), MAX_ITEMS))
 
         self.commitComboBox.clear()
         self.commitComboBox.addItems(map(lambda c: c.summary, self.commits))
