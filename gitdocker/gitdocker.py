@@ -11,9 +11,11 @@ class GitDocker(DockWidget):
         self.setWindowTitle("Git docker")
 
         self.label = QLabel('')
+        self.commitComboBox = QComboBox()
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
+        self.layout.addWidget(self.commitComboBox)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
