@@ -37,7 +37,7 @@ class GitDocker(DockWidget):
     def canvasChanged(self, canvas):
         self.path = self.current_file_path()
 
-        if self.path is None:
+        if self.path is None or self.path == '':
             return
 
         self.repo = Repo(self.path, search_parent_directories=True)
