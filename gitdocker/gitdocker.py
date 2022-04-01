@@ -3,6 +3,7 @@ from krita import (DockWidget, Krita, DockWidgetFactory,
 from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget, QHBoxLayout, QPushButton
 from io import BytesIO
 import subprocess
+import tempfile
 from git import Repo
 import zipfile
 import os
@@ -18,6 +19,7 @@ class GitDocker(DockWidget):
         self.repo = None
         self.path = None
         self.commits = []
+        self.file_handlers = []
 
         self.label = QLabel('')
         self.commitComboBox = QComboBox()
@@ -25,6 +27,7 @@ class GitDocker(DockWidget):
             self.commit_combo_box_current_index_changed)
 
         self.open_button = QPushButton("Open")
+        self.open_button.clicked.connect(self.open_button_clicked)
 
         self.buttons = QHBoxLayout()
         self.buttons.addWidget(self.open_button)
@@ -38,6 +41,10 @@ class GitDocker(DockWidget):
         self.widget.setLayout(self.layout)
 
         self.setWidget(self.widget)
+
+    def __del__(self):
+        for fp in self.file_handlers:
+            fp.close()
 
     def canvasChanged(self, canvas):
         self.path = active_document_path()
@@ -97,6 +104,18 @@ class GitDocker(DockWidget):
 
     def commit_combo_box_current_index_changed(self, index):
         self.get_thumbnail(self.commits[index].hexsha)
+
+    def open_button_clicked(self):
+        FP = tempfile.NamedTemporaryFile()
+        RAW = self.get_revision(
+            self.commits[self.commitComboBox.currentIndex()])
+
+        FP.write(RAW)
+
+        self.file_handlers.append(FP)
+
+        D = Krita.instance().openDocument(FP.name)
+        Krita.instance().activeWindow().addView(D)
 
 
 def active_document_path():
