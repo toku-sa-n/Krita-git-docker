@@ -91,7 +91,6 @@ class GitDocker(DockWidget):
         p = subprocess.Popen(["git", "show", "%s:%s" %
                              (HEXSHA, RELPATH)], stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir)
         out, _ = p.communicate()
-        print(out)
         return out
 
     def commit_combo_box_current_index_changed(self, index):
