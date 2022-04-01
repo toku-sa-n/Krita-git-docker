@@ -91,8 +91,9 @@ class GitDocker(DockWidget):
         # Do not use GitPython's show command because it has a bug and it
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
-        p = subprocess.Popen(["git", "show", "%s:%s" %
-                             (HEXSHA, RELPATH)], stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir)
+        COMMAND = ["git", "show", "%s:%s" % (HEXSHA, RELPATH)]
+        p = subprocess.Popen(COMMAND, stdout=subprocess.PIPE,
+                             cwd=self.repo.working_tree_dir)
         out, _ = p.communicate()
         return out
 
