@@ -89,7 +89,7 @@ class GitDocker(DockWidget):
 
         RELPATH = os.path.relpath(self.path, self.repo.working_tree_dir)
 
-        # Do not use GitPython's show command because it has a bug and it
+        # Do not use GitPython's show command because it has a bug and
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
         COMMAND = ["git", "show", "%s:%s" % (HEXSHA, RELPATH)]
