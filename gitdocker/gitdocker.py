@@ -1,5 +1,5 @@
-from krita import *
-from PyQt5.QtWidgets import *
+from krita import DockWidget, Krita, DockWidgetFactory, DockWidgetFactoryBase, QImage, QPixmap
+from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget
 from io import BytesIO
 import subprocess
 from typing import Optional
