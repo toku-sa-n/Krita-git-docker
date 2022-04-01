@@ -3,7 +3,6 @@ from krita import (DockWidget, Krita, DockWidgetFactory,
 from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget
 from io import BytesIO
 import subprocess
-from typing import Optional
 from git import Repo
 import zipfile
 import os
@@ -35,7 +34,7 @@ class GitDocker(DockWidget):
         self.setWidget(self.widget)
 
     def canvasChanged(self, canvas):
-        self.path = self.current_file_path()
+        self.path = active_document_path()
 
         if self.path is None or self.path == '':
             return
@@ -51,14 +50,6 @@ class GitDocker(DockWidget):
 
         self.commitComboBox.clear()
         self.commitComboBox.addItems(map(lambda c: c.summary, self.commits))
-
-    def current_file_path(self) -> Optional[str]:
-        DOC = Krita.instance().activeDocument()
-
-        if DOC is not None:
-            return DOC.fileName()
-        else:
-            return None
 
     def get_thumbnail(self, HEXSHA):
         RAW = self.get_revision(HEXSHA)
@@ -100,6 +91,21 @@ class GitDocker(DockWidget):
 
     def commit_combo_box_current_index_changed(self, index):
         self.get_thumbnail(self.commits[index].hexsha)
+
+
+def active_document_path():
+    DOC = Krita.instance().activeDocument()
+
+    if DOC is not None:
+        return DOC.fileName()
+    else:
+        return None
+
+
+def retrieve_commits_including_path(PATH):
+    REPO = Repo(PATH, search_parent_directories=True)
+
+    return REPO.iter_commits(paths=PATH)
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
