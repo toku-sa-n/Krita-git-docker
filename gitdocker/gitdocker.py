@@ -1,6 +1,6 @@
 from krita import (DockWidget, Krita, DockWidgetFactory,
                    DockWidgetFactoryBase, QImage, QPixmap)
-from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget, QHBoxLayout, QPushButton
 from io import BytesIO
 import subprocess
 from git import Repo
@@ -19,14 +19,20 @@ class GitDocker(DockWidget):
         self.path = None
         self.commits = []
 
-        self.image_label = QLabel('')
+        self.label = QLabel('')
         self.commitComboBox = QComboBox()
         self.commitComboBox.currentIndexChanged.connect(
             self.commit_combo_box_current_index_changed)
 
+        self.open_button = QPushButton("Open")
+
+        self.buttons = QHBoxLayout()
+        self.buttons.addWidget(self.open_button)
+
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.image_label)
+        self.layout.addWidget(self.label)
         self.layout.addWidget(self.commitComboBox)
+        self.layout.addLayout(self.buttons)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
@@ -66,10 +72,10 @@ class GitDocker(DockWidget):
                 thumbnail = QImage.fromData(UNCOMPRESSED.read("preview.png"))
 
         if thumbnail is None:
-            self.image_label.setText("No thumbnail available")
+            self.label.setText("No thumbnail available")
             return None
 
-        self.image_label.setPixmap(QPixmap.fromImage(thumbnail))
+        self.label.setPixmap(QPixmap.fromImage(thumbnail))
 
     def get_revision(self, HEXSHA):
         if self.path is None:
