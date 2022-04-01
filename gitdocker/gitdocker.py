@@ -19,13 +19,13 @@ class GitDocker(DockWidget):
         self.path = None
         self.commits = []
 
-        self.label = QLabel('')
+        self.image_label = QLabel('')
         self.commitComboBox = QComboBox()
         self.commitComboBox.currentIndexChanged.connect(
             self.commit_combo_box_current_index_changed)
 
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.image_label)
         self.layout.addWidget(self.commitComboBox)
 
         self.widget = QWidget()
@@ -66,10 +66,10 @@ class GitDocker(DockWidget):
                 thumbnail = QImage.fromData(UNCOMPRESSED.read("preview.png"))
 
         if thumbnail is None:
-            self.label.setText("No thumbnail available")
+            self.image_label.setText("No thumbnail available")
             return None
 
-        self.label.setPixmap(QPixmap.fromImage(thumbnail))
+        self.image_label.setPixmap(QPixmap.fromImage(thumbnail))
 
     def get_revision(self, HEXSHA):
         if self.path is None:
