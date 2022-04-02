@@ -24,7 +24,8 @@ class GitDocker(DockWidget):
         self.commits = []
         self.file_handlers = []
 
-        self.label = QLabel('')
+        self.image_label = QLabel('')
+        self.message_label = QLabel('')
         self.commit_combo_box = QComboBox()
         self.commit_combo_box.currentIndexChanged.connect(
             self.commit_combo_box_current_index_changed)
@@ -42,7 +43,8 @@ class GitDocker(DockWidget):
         self.commit_layout.addWidget(self.commit_button)
 
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.image_label)
+        self.layout.addWidget(self.message_label)
         self.layout.addWidget(self.commit_combo_box)
         self.layout.addWidget(self.open_button)
         self.layout.addLayout(self.commit_layout)
@@ -79,14 +81,16 @@ class GitDocker(DockWidget):
 
         self.commit_combo_box.clear()
         self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
+        self.message_label.clear()
 
     def set_thumbnail(self, hexsha):
         thumbnail = self.fetch_thumbnail(hexsha)
 
         if thumbnail is None:
-            self.label.setText("No thumbnail available.")
+            self.image_label.clear()
+            self.message_label.setText("No thumbnail available.")
         else:
-            self.label.setPixmap(QPixmap.fromImage(thumbnail))
+            self.image_label.setPixmap(QPixmap.fromImage(thumbnail))
 
     def fetch_thumbnail(self, hexsha):
         raw = self.get_revision(hexsha)
@@ -149,15 +153,21 @@ class GitDocker(DockWidget):
         if self.repo is None:
             return
 
+        if self.commit_message_box.Text() == '':
+            self.message_label.setText('Commit message is empty.')
+            return
+
         self.repo.index.add([self.path])
         self.repo.index.commit(self.commit_message_box.text())
 
         self.commit_message_box.clear()
 
         self.update_commits_and_combo_box()
+        self.message_label.setText('Commited.')
 
     def show_git_repository_not_found(self):
-        self.label.setText("Git repository not found.")
+        self.image_label.clear()
+        self.message_label.setText('Git repository not found.')
         self.commit_combo_box.clear()
 
 
