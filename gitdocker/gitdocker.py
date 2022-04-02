@@ -73,54 +73,54 @@ class GitDocker(DockWidget):
             self.show_git_repository_not_found()
             return
 
-        MAX_ITEMS = 10
+        max_items = 10
         self.commits = list(itertools.islice(
-            self.repo.iter_commits(paths=self.path), MAX_ITEMS))
+            self.repo.iter_commits(paths=self.path), max_items))
 
         self.commit_combo_box.clear()
         self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
 
-    def get_thumbnail(self, HEXSHA):
-        RAW = self.get_revision(HEXSHA)
+    def get_thumbnail(self, hexsha):
+        raw = self.get_revision(hexsha)
 
-        if RAW is None:
+        if raw is None:
             return None
 
         thumbnail = None
-        EXTENSION = Path(self.path).suffix
-        if EXTENSION == '.kra':
-            UNCOMPRESSED = zipfile.ZipFile(BytesIO(RAW), "r")
-            thumbnail = QImage.fromData(UNCOMPRESSED.read("mergedimage.png"))
+        extension = Path(self.path).suffix
+        if extension == '.kra':
+            uncompressed = zipfile.ZipFile(BytesIO(raw), "r")
+            thumbnail = QImage.fromData(uncompressed.read("mergedimage.png"))
             if thumbnail is None:
-                thumbnail = QImage.fromData(UNCOMPRESSED.read("preview.png"))
+                thumbnail = QImage.fromData(uncompressed.read("preview.png"))
         else:
-            thumbnail = QImage.fromData(RAW)
+            thumbnail = QImage.fromData(raw)
 
         if thumbnail is None:
             self.label.setText("No thumbnail available")
             return None
 
-        THUMBSIZE = QSize(200, 150)
+        thumbsize = QSize(200, 150)
 
         thumbnail = thumbnail.scaled(
-            THUMBSIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
         self.label.setPixmap(QPixmap.fromImage(thumbnail))
 
-    def get_revision(self, HEXSHA):
+    def get_revision(self, hexsha):
         if self.path is None or self.path == '':
             return None
 
         if self.repo is None:
             return None
 
-        RELPATH = os.path.relpath(self.path, self.repo.working_tree_dir)
+        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
 
         # Do not use GitPython's show command because it has a bug and
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
-        COMMAND = ["git", "show", "%s:%s" % (HEXSHA, RELPATH)]
-        p = subprocess.Popen(COMMAND, stdout=subprocess.PIPE,
+        command = ["git", "show", "%s:%s" % (hexsha, relpath)]
+        p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              cwd=self.repo.working_tree_dir)
         out, _ = p.communicate()
         return out
@@ -132,16 +132,16 @@ class GitDocker(DockWidget):
         if self.commit_combo_box.count() == 0:
             return
 
-        FP = tempfile.NamedTemporaryFile()
-        RAW = self.get_revision(
+        fp = tempfile.NamedTemporaryFile()
+        raw = self.get_revision(
             self.commits[self.commit_combo_box.currentIndex()])
 
-        FP.write(RAW)
+        fp.write(raw)
 
-        self.file_handlers.append(FP)
+        self.file_handlers.append(fp)
 
-        D = Krita.instance().openDocument(FP.name)
-        Krita.instance().activeWindow().addView(D)
+        doc = Krita.instance().openDocument(fp.name)
+        Krita.instance().activeWindow().addView(doc)
 
         self.update_commits_and_combo_box()
 
@@ -162,18 +162,18 @@ class GitDocker(DockWidget):
 
 
 def active_document_path():
-    DOC = Krita.instance().activeDocument()
+    doc = Krita.instance().activeDocument()
 
-    if DOC is not None:
-        return DOC.fileName()
+    if doc is not None:
+        return doc.fileName()
     else:
         return None
 
 
-def retrieve_commits_including_path(PATH):
-    REPO = Repo(PATH, search_parent_directories=True)
+def retrieve_commits_including_path(path):
+    repo = Repo(path, search_parent_directories=True)
 
-    return REPO.iter_commits(paths=PATH)
+    return repo.iter_commits(paths=path)
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
