@@ -126,10 +126,9 @@ class GitDocker(DockWidget):
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
         command = ["git", "show", "%s:%s" % (hexsha, relpath)]
-        p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             cwd=self.repo.working_tree_dir)
-        out, _ = p.communicate()
-        return out
+        with subprocess.Popen(command, stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir) as p:
+            out, _ = p.communicate()
+            return out
 
     def commit_combo_box_current_index_changed(self, index):
         self.set_thumbnail(self.commits[index].hexsha)
