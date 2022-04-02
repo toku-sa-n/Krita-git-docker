@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 from io import BytesIO
 import subprocess
 import tempfile
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 import zipfile
 import os
 from pathlib import Path
@@ -76,7 +76,11 @@ class GitDocker(DockWidget):
         if self.path is None or self.path == '':
             return
 
-        self.repo = Repo(self.path, search_parent_directories=True)
+        try:
+            self.repo = Repo(self.path, search_parent_directories=True)
+        except InvalidGitRepositoryError:
+            # No repository here.
+            return
 
         MAX_ITEMS = 10
         self.commits = list(itertools.islice(
