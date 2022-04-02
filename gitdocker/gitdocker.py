@@ -163,7 +163,7 @@ class GitDocker(DockWidget):
             self.message_label.setText('Commit message is empty.')
             return
 
-        if not self.diff_exists_from_head():
+        if not self.is_modified_or_untracked():
             self.message_label.setText('File is not changed.')
             return
 
@@ -175,15 +175,31 @@ class GitDocker(DockWidget):
         self.update_commits_and_combo_box()
         self.message_label.setText('Commited.')
 
-    def diff_exists_from_head(self):
+    def is_modified_or_untracked(self):
         assert self.repo is not None
         assert self.path is not None
 
         relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
 
-        diff_files = self.repo.git.diff('HEAD', name_only=True).splitlines()
+        return relpath in self.modified_or_untracked_files()
 
-        return relpath in diff_files
+    def modified_or_untracked_files(self):
+        assert self.repo is not None
+        assert self.path is not None
+
+        return self.untracked_files()+self.files_different_from_head()
+
+    def untracked_files(self):
+        assert self.repo is not None
+        assert self.path is not None
+
+        return self.repo.git.execute(['git', 'ls-files', '--others', '--exclude-standard']).splitlines()
+
+    def files_different_from_head(self):
+        assert self.repo is not None
+        assert self.path is not None
+
+        return self.repo.git.diff('HEAD', name_only=True).splitlines()
 
     def show_git_repository_not_found(self):
         self.image_label.clear()
