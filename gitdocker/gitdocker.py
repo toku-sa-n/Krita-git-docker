@@ -102,6 +102,8 @@ class GitDocker(DockWidget):
             thumbnail = QImage.fromData(UNCOMPRESSED.read("mergedimage.png"))
             if thumbnail is None:
                 thumbnail = QImage.fromData(UNCOMPRESSED.read("preview.png"))
+        else:
+            thumbnail = QImage.fromData(RAW)
 
         if thumbnail is None:
             self.label.setText("No thumbnail available")
