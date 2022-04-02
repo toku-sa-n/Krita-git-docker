@@ -1,8 +1,20 @@
-from krita import (DockWidget, Krita, DockWidgetFactory,
-                   DockWidgetFactoryBase, QImage, QPixmap)
+from krita import (
+    DockWidget,
+    Krita,
+    DockWidgetFactory,
+    DockWidgetFactoryBase,
+    QImage,
+    QPixmap,
+    QSize)
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
-    QLabel, QComboBox,
-    QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLineEdit)
+    QLabel,
+    QComboBox,
+    QVBoxLayout,
+    QWidget,
+    QHBoxLayout,
+    QPushButton,
+    QLineEdit)
 from io import BytesIO
 import subprocess
 import tempfile
@@ -93,6 +105,11 @@ class GitDocker(DockWidget):
         if thumbnail is None:
             self.label.setText("No thumbnail available")
             return None
+
+        THUMBSIZE = QSize(200, 150)
+
+        thumbnail = thumbnail.scaled(
+            THUMBSIZE, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
         self.label.setPixmap(QPixmap.fromImage(thumbnail))
 
