@@ -89,10 +89,12 @@ class GitDocker(DockWidget):
         thumbnail = None
         extension = Path(self.path).suffix
         if extension == '.kra':
-            uncompressed = zipfile.ZipFile(BytesIO(raw), "r")
-            thumbnail = QImage.fromData(uncompressed.read("mergedimage.png"))
-            if thumbnail is None:
-                thumbnail = QImage.fromData(uncompressed.read("preview.png"))
+            with zipfile.ZipFile(BytesIO(raw), "r") as uncompressed:
+                thumbnail = QImage.fromData(
+                    uncompressed.read("mergedimage.png"))
+                if thumbnail is None:
+                    thumbnail = QImage.fromData(
+                        uncompressed.read("preview.png"))
         else:
             thumbnail = QImage.fromData(raw)
 
