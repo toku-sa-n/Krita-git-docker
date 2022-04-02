@@ -80,7 +80,7 @@ class GitDocker(DockWidget):
         self.commit_combo_box.clear()
         self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
 
-    def get_thumbnail(self, hexsha):
+    def set_thumbnail(self, hexsha):
         raw = self.get_revision(hexsha)
 
         if raw is None:
@@ -128,7 +128,7 @@ class GitDocker(DockWidget):
         return out
 
     def commit_combo_box_current_index_changed(self, index):
-        self.get_thumbnail(self.commits[index].hexsha)
+        self.set_thumbnail(self.commits[index].hexsha)
 
     def open_button_clicked(self):
         if self.commit_combo_box.count() == 0:
