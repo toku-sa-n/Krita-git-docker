@@ -78,9 +78,6 @@ class GitDocker(DockWidget):
 
         self.repo = Repo(self.path, search_parent_directories=True)
 
-        if self.repo is None:
-            return
-
         MAX_ITEMS = 10
         self.commits = list(itertools.islice(
             self.repo.iter_commits(paths=self.path), MAX_ITEMS))
