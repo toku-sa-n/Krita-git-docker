@@ -53,8 +53,7 @@ class GitDocker(DockWidget):
         self.setWidget(self.widget)
 
     def __del__(self):
-        for fp in self.file_handlers:
-            fp.close()
+        [fp.close for fp in self.file_handlers]
 
     def canvasChanged(self, canvas):
         self.update_commits_and_combo_box()
