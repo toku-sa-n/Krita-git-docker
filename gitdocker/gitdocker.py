@@ -97,16 +97,7 @@ class GitDocker(DockWidget):
         thumbnail = None
         extension = Path(self.path).suffix
         if extension in ['.kra', '.krz']:
-            with zipfile.ZipFile(BytesIO(raw), "r") as uncompressed:
-                try:
-                    thumbnail = QImage.fromData(
-                        uncompressed.read("mergedimage.png"))
-                except KeyError:
-                    try:
-                        thumbnail = QImage.fromData(
-                            uncompressed.read("preview.png"))
-                    except KeyError:
-                        thumbnail = None
+            thumbnail = fetch_thumbnail_from_krita_file(raw)
         else:
             thumbnail = QImage.fromData(raw)
 
@@ -183,6 +174,21 @@ def retrieve_commits_including_path(path):
     repo = Repo(path, search_parent_directories=True)
 
     return repo.iter_commits(paths=path)
+
+
+def fetch_thumbnail_from_krita_file(raw):
+    with zipfile.ZipFile(BytesIO(raw), "r") as uncompressed:
+        try:
+            return QImage.fromData(
+                uncompressed.read("mergedimage.png"))
+        except KeyError:
+            pass
+
+        try:
+            return QImage.fromData(
+                uncompressed.read("preview.png"))
+        except KeyError:
+            return None
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
