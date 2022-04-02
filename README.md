@@ -7,8 +7,8 @@ A Krita plugin for viewing Krita files in other git revisions.
 
 ## Features
 
-You can open your file in the previous commit.
-You can commit the file you are editing without opening your terminal.
+* You can open your file in the previous commit.
+* You can commit the file you are editing without opening your terminal.
 
 ## Installation
 
