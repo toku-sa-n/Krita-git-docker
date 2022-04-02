@@ -84,7 +84,7 @@ class GitDocker(DockWidget):
         raw = self.get_revision(hexsha)
 
         if raw is None:
-            return None
+            return
 
         thumbnail = None
         extension = Path(self.path).suffix
