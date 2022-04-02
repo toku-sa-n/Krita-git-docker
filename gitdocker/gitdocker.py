@@ -100,7 +100,7 @@ class GitDocker(DockWidget):
 
         if thumbnail is None:
             self.label.setText("No thumbnail available")
-            return None
+            return
 
         thumbsize = QSize(200, 150)
 
