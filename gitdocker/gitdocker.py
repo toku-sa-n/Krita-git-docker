@@ -95,8 +95,8 @@ class GitDocker(DockWidget):
             return None
 
         thumbnail = None
-        extension = Path(self.path).suffix
-        if extension in ['.kra', '.krz']:
+
+        if is_krita_file(self.path):
             thumbnail = fetch_thumbnail_from_krita_file(raw)
         else:
             thumbnail = QImage.fromData(raw)
@@ -174,6 +174,12 @@ def retrieve_commits_including_path(path):
     repo = Repo(path, search_parent_directories=True)
 
     return repo.iter_commits(paths=path)
+
+
+def is_krita_file(path):
+    extension = Path(path).suffix
+
+    return extension in ['.kra', '.krz']
 
 
 def fetch_thumbnail_from_krita_file(raw):
