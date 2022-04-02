@@ -25,6 +25,8 @@ class GitDocker(DockWidget):
         self.file_handlers = []
 
         self.image_label = QLabel('')
+        self.image_label.setAlignment(Qt.AlignCenter)
+
         self.message_label = QLabel('')
         self.commit_combo_box = QComboBox()
         self.commit_combo_box.currentIndexChanged.connect(
