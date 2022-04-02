@@ -1,28 +1,17 @@
-from krita import (
-    DockWidget,
-    Krita,
-    DockWidgetFactory,
-    DockWidgetFactoryBase,
-    QImage,
-    QPixmap,
-    QSize)
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
-    QLabel,
-    QComboBox,
-    QVBoxLayout,
-    QWidget,
-    QHBoxLayout,
-    QPushButton,
-    QLineEdit)
-from io import BytesIO
+import itertools
+import os
 import subprocess
 import tempfile
-from git import Repo, InvalidGitRepositoryError
 import zipfile
-import os
+from io import BytesIO
 from pathlib import Path
-import itertools
+
+from git import InvalidGitRepositoryError, Repo
+from krita import (DockWidget, DockWidgetFactory, DockWidgetFactoryBase, Krita,
+                   QImage, QPixmap, QSize)
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                             QPushButton, QVBoxLayout, QWidget)
 
 
 class GitDocker(DockWidget):
