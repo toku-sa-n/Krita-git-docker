@@ -25,8 +25,8 @@ class GitDocker(DockWidget):
         self.file_handlers = []
 
         self.label = QLabel('')
-        self.commitComboBox = QComboBox()
-        self.commitComboBox.currentIndexChanged.connect(
+        self.commit_combo_box = QComboBox()
+        self.commit_combo_box.currentIndexChanged.connect(
             self.commit_combo_box_current_index_changed)
 
         self.open_button = QPushButton("Open")
@@ -43,7 +43,7 @@ class GitDocker(DockWidget):
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
-        self.layout.addWidget(self.commitComboBox)
+        self.layout.addWidget(self.commit_combo_box)
         self.layout.addWidget(self.open_button)
         self.layout.addLayout(self.commit_layout)
 
@@ -77,8 +77,8 @@ class GitDocker(DockWidget):
         self.commits = list(itertools.islice(
             self.repo.iter_commits(paths=self.path), MAX_ITEMS))
 
-        self.commitComboBox.clear()
-        self.commitComboBox.addItems(map(lambda c: c.summary, self.commits))
+        self.commit_combo_box.clear()
+        self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
 
     def get_thumbnail(self, HEXSHA):
         RAW = self.get_revision(HEXSHA)
@@ -129,12 +129,12 @@ class GitDocker(DockWidget):
         self.get_thumbnail(self.commits[index].hexsha)
 
     def open_button_clicked(self):
-        if self.commitComboBox.count() == 0:
+        if self.commit_combo_box.count() == 0:
             return
 
         FP = tempfile.NamedTemporaryFile()
         RAW = self.get_revision(
-            self.commits[self.commitComboBox.currentIndex()])
+            self.commits[self.commit_combo_box.currentIndex()])
 
         FP.write(RAW)
 
@@ -158,7 +158,7 @@ class GitDocker(DockWidget):
 
     def show_git_repository_not_found(self):
         self.label.setText("Git repository not found.")
-        self.commitComboBox.clear()
+        self.commit_combo_box.clear()
 
 
 def active_document_path():
