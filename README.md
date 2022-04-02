@@ -12,6 +12,12 @@ You can commit the file you are editing without opening your terminal.
 
 ## Installation
 
+You need `GitPython`.
+
+```sh
+pip install --user GitPython
+```
+
 Clone this project and copy `gitdocker.desktop`, `gitdocker/__init__.py`, and `gitdocker/gitdocker.py` to the `pykrita` directory in your Krita resource folder. See [the documentation](https://docs.krita.org/en/reference_manual/resource_management.html#resource-management) for the location of the Krita resource folder.
 
 ## Usage
