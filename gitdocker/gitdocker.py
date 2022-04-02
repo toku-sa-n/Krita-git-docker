@@ -81,10 +81,18 @@ class GitDocker(DockWidget):
         self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
 
     def set_thumbnail(self, hexsha):
+        thumbnail = self.fetch_thumbnail(hexsha)
+
+        if thumbnail is None:
+            self.label.setText("No thumbnail available.")
+        else:
+            self.label.setPixmap(QPixmap.fromImage(thumbnail))
+
+    def fetch_thumbnail(self, hexsha):
         raw = self.get_revision(hexsha)
 
         if raw is None:
-            return
+            return None
 
         thumbnail = None
         extension = Path(self.path).suffix
@@ -99,15 +107,11 @@ class GitDocker(DockWidget):
             thumbnail = QImage.fromData(raw)
 
         if thumbnail is None:
-            self.label.setText("No thumbnail available")
-            return
+            return None
 
         thumbsize = QSize(200, 150)
 
-        thumbnail = thumbnail.scaled(
-            thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-        self.label.setPixmap(QPixmap.fromImage(thumbnail))
+        return thumbnail.scaled(thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def get_revision(self, hexsha):
         if self.path is None or self.path == '':
