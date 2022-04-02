@@ -153,8 +153,12 @@ class GitDocker(DockWidget):
         if self.repo is None:
             return
 
-        if self.commit_message_box.Text() == '':
+        if self.commit_message_box.text() == '':
             self.message_label.setText('Commit message is empty.')
+            return
+
+        if not self.diff_exists_from_head():
+            self.message_label.setText('File is not changed.')
             return
 
         self.repo.index.add([self.path])
@@ -164,6 +168,16 @@ class GitDocker(DockWidget):
 
         self.update_commits_and_combo_box()
         self.message_label.setText('Commited.')
+
+    def diff_exists_from_head(self):
+        assert self.repo is not None
+        assert self.path is not None
+
+        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
+
+        diff_files = self.repo.git.diff('HEAD', name_only=True).splitlines()
+
+        return relpath in diff_files
 
     def show_git_repository_not_found(self):
         self.image_label.clear()
