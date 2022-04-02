@@ -74,12 +74,14 @@ class GitDocker(DockWidget):
         self.path = active_document_path()
 
         if self.path is None or self.path == '':
+            self.show_git_repository_not_found()
             return
 
         try:
             self.repo = Repo(self.path, search_parent_directories=True)
         except InvalidGitRepositoryError:
-            # No repository here.
+            self.repo = None
+            self.show_git_repository_not_found()
             return
 
         MAX_ITEMS = 10
@@ -117,7 +119,7 @@ class GitDocker(DockWidget):
         self.label.setPixmap(QPixmap.fromImage(thumbnail))
 
     def get_revision(self, HEXSHA):
-        if self.path is None:
+        if self.path is None or self.path == '':
             return None
 
         if self.repo is None:
@@ -138,6 +140,9 @@ class GitDocker(DockWidget):
         self.get_thumbnail(self.commits[index].hexsha)
 
     def open_button_clicked(self):
+        if self.commitComboBox.count() == 0:
+            return
+
         FP = tempfile.NamedTemporaryFile()
         RAW = self.get_revision(
             self.commits[self.commitComboBox.currentIndex()])
@@ -149,6 +154,8 @@ class GitDocker(DockWidget):
         D = Krita.instance().openDocument(FP.name)
         Krita.instance().activeWindow().addView(D)
 
+        self.update_commits_and_combo_box()
+
     def commit(self):
         if self.repo is None:
             return
@@ -159,6 +166,10 @@ class GitDocker(DockWidget):
         self.commit_message_box.clear()
 
         self.update_commits_and_combo_box()
+
+    def show_git_repository_not_found(self):
+        self.label.setText("Git repository not found.")
+        self.commitComboBox.clear()
 
 
 def active_document_path():
