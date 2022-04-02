@@ -1,6 +1,8 @@
 from krita import (DockWidget, Krita, DockWidgetFactory,
                    DockWidgetFactoryBase, QImage, QPixmap)
-from PyQt5.QtWidgets import QLabel, QComboBox, QVBoxLayout, QWidget, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import (
+    QLabel, QComboBox,
+    QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QLineEdit)
 from io import BytesIO
 import subprocess
 import tempfile
@@ -29,13 +31,20 @@ class GitDocker(DockWidget):
         self.open_button = QPushButton("Open")
         self.open_button.clicked.connect(self.open_button_clicked)
 
-        self.buttons = QHBoxLayout()
-        self.buttons.addWidget(self.open_button)
+        self.commit_message_box = QLineEdit()
+
+        self.commit_button = QPushButton("Commit")
+        self.commit_button.clicked.connect(self.commit)
+
+        self.commit_layout = QHBoxLayout()
+        self.commit_layout.addWidget(self.commit_message_box)
+        self.commit_layout.addWidget(self.commit_button)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.commitComboBox)
-        self.layout.addLayout(self.buttons)
+        self.layout.addWidget(self.open_button)
+        self.layout.addLayout(self.commit_layout)
 
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
@@ -47,6 +56,9 @@ class GitDocker(DockWidget):
             fp.close()
 
     def canvasChanged(self, canvas):
+        self.update_commits_and_combo_box()
+
+    def update_commits_and_combo_box(self):
         self.path = active_document_path()
 
         if self.path is None or self.path == '':
@@ -116,6 +128,17 @@ class GitDocker(DockWidget):
 
         D = Krita.instance().openDocument(FP.name)
         Krita.instance().activeWindow().addView(D)
+
+    def commit(self):
+        if self.repo is None:
+            return
+
+        self.repo.index.add([self.path])
+        self.repo.index.commit(self.commit_message_box.text())
+
+        self.commit_message_box.clear()
+
+        self.update_commits_and_combo_box()
 
 
 def active_document_path():
