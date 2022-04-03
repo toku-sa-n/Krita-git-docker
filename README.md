@@ -18,7 +18,7 @@ You need `GitPython`.
 pip install --user GitPython
 ```
 
-Clone this project and copy `gitdocker.desktop`, `gitdocker/__init__.py`, and `gitdocker/gitdocker.py` to the `pykrita` directory in your Krita resource folder. See [the documentation](https://docs.krita.org/en/reference_manual/resource_management.html#resource-management) for the location of the Krita resource folder.
+Clone this project and copy `gitdocker.desktop` and the `gitdocker/` directory into to the `pykrita` directory in your Krita resource folder. See [the documentation](https://docs.krita.org/en/reference_manual/resource_management.html#resource-management) for the location of the Krita resource folder.
 
 ## Usage
 
@@ -27,6 +27,10 @@ Open an image with Krita. If the file is untracked, the docker will say, "Git re
 The docker will show the thumbnail if the file is tracked, and the combo box lists the newest ten commits' summaries. Click the "open" button to open the revision.
 
 After modifying the image, write the commit message in the textbox and push the "Commit" button. Note that this will commit all staged files, not only the image.
+
+## Limitation
+
+Any commits made by this plugin are not GPG-signed.
 
 ## License
 
