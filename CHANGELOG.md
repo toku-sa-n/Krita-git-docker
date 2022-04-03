@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## [Unreleased]
+
+## 0.1.0 - 2022-04-03
 ### Added
 - Initial release
   - Show the previous commits' thumbnails.
