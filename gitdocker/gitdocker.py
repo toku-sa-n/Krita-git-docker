@@ -173,7 +173,7 @@ class GitDocker(DockWidget):
         self.commit_message_box.clear()
 
         self.update_commits_and_combo_box()
-        self.message_label.setText('Commited.')
+        self.message_label.setText('Committed.')
 
     def is_modified_or_untracked(self):
         assert self.repo is not None
