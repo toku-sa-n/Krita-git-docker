@@ -28,6 +28,8 @@ The docker will show the thumbnail if the file is tracked, and the combo box lis
 
 After modifying the image, write the commit message in the textbox and push the "Commit" button. Note that this will commit all staged files, not only the image.
 
+See [my blog article](https://tokuchan3515.hatenablog.com/entry/2022/04/03/162752) (written in Japanese).
+
 ## Limitation
 
 Any commits made by this plugin are not GPG-signed.
