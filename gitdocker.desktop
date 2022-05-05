@@ -3,5 +3,6 @@ Type=Service
 ServiceTypes=Krita/PythonPlugin
 X-KDE-Library=gitdocker
 X-Python-2-Compatible=false
-Name=Git docker
+X-Krita-Manual=Manual.html
+Name=Git Docker
 Comment=A docker to view file revisions managed by Git.

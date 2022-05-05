@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Git Docker Plugin Manual</title>
+</head>
+
+<body>
+  <h1 id="krita-git-docker">Git Docker</h1>
+  <p>A Krita plugin for viewing Krita files in other git revisions.</p>
+  <h2 id="usage">Usage</h2>
+  <p>Open an image with Krita. If the file is untracked, the docker will
+    say, “Git repository not found.”</p>
+  <p>The docker will show the thumbnail if the file is tracked, and the
+    combo box lists the newest ten commits’ summaries. Click the “open”
+    button to open the revision.</p>
+  <p>After modifying the image, write the commit message in the textbox
+    and push the “Commit” button. Note that this will commit all staged
+    files, not only the image.</p>
+  <h2 id="limitation">Limitation</h2>
+  <p>Any commits made by this plugin are not GPG-signed.</p>
+</body>
