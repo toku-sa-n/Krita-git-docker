@@ -93,7 +93,7 @@ class GitDocker(DockWidget):
         self.commit_message_box = QLineEdit()
 
         self.commit_button = QPushButton("Commit")
-        self.commit_button.clicked.connect(self.commit)
+        self.commit_button.clicked.connect(self.commit_button_handler)
 
         self.commit_layout = QHBoxLayout()
         self.commit_layout.addWidget(self.commit_message_box)
@@ -183,7 +183,7 @@ class GitDocker(DockWidget):
 
         self.update_commits_and_combo_box()
 
-    def commit(self):
+    def commit_button_handler(self):
         try:
             self.document.commit(self.commit_message_box.text())
         except ValueError:
