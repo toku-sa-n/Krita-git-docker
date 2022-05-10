@@ -29,6 +29,25 @@ class TrackedDocument():
         self.commits = list(itertools.islice(
             self.repo.iter_commits(paths=self.path), max_items))
 
+    def fetch_thumbnail(self, hexsha):
+        raw = self.get_revision(hexsha)
+
+        if not raw:
+            return None
+
+        thumbnail = None
+        if self.is_krita_file():
+            thumbnail = fetch_thumbnail_from_krita_file(raw)
+        else:
+            thumbnail = QImage.fromData(raw)
+
+        if not thumbnail:
+            return None
+
+        thumbSize = QSize(200, 150)
+
+        return thumbnail.scaled(thumbSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
     def get_revision(self, hexsha):
         relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
 
@@ -134,33 +153,13 @@ class GitDocker(DockWidget):
             self.message_label.setText('This file is not tracked.')
 
     def set_thumbnail(self, hexsha):
-        thumbnail = self.fetch_thumbnail(hexsha)
+        thumbnail = self.document.fetch_thumbnail(hexsha)
 
         if thumbnail is None:
             self.image_label.clear()
             self.message_label.setText("No thumbnail available.")
         else:
             self.image_label.setPixmap(QPixmap.fromImage(thumbnail))
-
-    def fetch_thumbnail(self, hexsha):
-        raw = self.document.get_revision(hexsha)
-
-        if raw is None:
-            return None
-
-        thumbnail = None
-
-        if self.document.is_krita_file():
-            thumbnail = fetch_thumbnail_from_krita_file(raw)
-        else:
-            thumbnail = QImage.fromData(raw)
-
-        if thumbnail is None:
-            return None
-
-        thumbsize = QSize(200, 150)
-
-        return thumbnail.scaled(thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def commit_combo_box_current_index_changed(self, index):
         if index != -1:
