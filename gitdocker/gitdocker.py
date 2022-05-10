@@ -159,6 +159,10 @@ class GitDocker(DockWidget):
         if self.repo is None:
             return
 
+        if self.path is None or self.path == '':
+            self.message_label.setText('Save your file first.')
+            return
+
         if self.commit_message_box.text() == '':
             self.message_label.setText('Commit message is empty.')
             return
