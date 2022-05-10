@@ -88,7 +88,7 @@ class GitDocker(DockWidget):
             self.commit_combo_box_current_index_changed)
 
         self.open_button = QPushButton("Open")
-        self.open_button.clicked.connect(self.open_button_clicked)
+        self.open_button.clicked.connect(self.open_button_handler)
 
         self.commit_message_box = QLineEdit()
 
@@ -166,7 +166,7 @@ class GitDocker(DockWidget):
         if index != -1:
             self.set_thumbnail(self.document.commits[index].hexsha)
 
-    def open_button_clicked(self):
+    def open_button_handler(self):
         if self.commit_combo_box.count() == 0:
             return
 
