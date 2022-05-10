@@ -34,6 +34,17 @@ class TrackedDocument():
 
         return extension in ['.kra', '.krz']
 
+    def get_revision(self, hexsha):
+        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
+
+        # Do not use GitPython's show command because it has a bug and
+        # truncates the last '\n', making the output invalid. See
+        # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
+        command = ["git", "show", "%s:%s" % (hexsha, relpath)]
+        with subprocess.Popen(command, stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir) as p:
+            out, _ = p.communicate()
+            return out
+
 
 class GitDocker(DockWidget):
     def __init__(self):
@@ -107,7 +118,7 @@ class GitDocker(DockWidget):
             self.image_label.setPixmap(QPixmap.fromImage(thumbnail))
 
     def fetch_thumbnail(self, hexsha):
-        raw = self.get_revision(hexsha)
+        raw = self.document.get_revision(hexsha)
 
         if raw is None:
             return None
@@ -125,21 +136,6 @@ class GitDocker(DockWidget):
         thumbsize = QSize(200, 150)
 
         return thumbnail.scaled(thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-    def get_revision(self, hexsha):
-        if not self.document:
-            return None
-
-        relpath = os.path.relpath(
-            self.document.path, self.document.repo.working_tree_dir)
-
-        # Do not use GitPython's show command because it has a bug and
-        # truncates the last '\n', making the output invalid. See
-        # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
-        command = ["git", "show", "%s:%s" % (hexsha, relpath)]
-        with subprocess.Popen(command, stdout=subprocess.PIPE, cwd=self.document.repo.working_tree_dir) as p:
-            out, _ = p.communicate()
-            return out
 
     def commit_combo_box_current_index_changed(self, index):
         if index != -1:
