@@ -213,17 +213,13 @@ def active_document_path():
 
 def fetch_thumbnail_from_krita_file(raw):
     with zipfile.ZipFile(BytesIO(raw), "r") as uncompressed:
-        try:
-            return QImage.fromData(
-                uncompressed.read("mergedimage.png"))
-        except KeyError:
-            pass
+        for name in ["mergedimage.png", "preview.png"]:
+            try:
+                return QImage.fromData(uncompressed.read(name))
+            except KeyError:
+                pass
 
-        try:
-            return QImage.fromData(
-                uncompressed.read("preview.png"))
-        except KeyError:
-            return None
+        return None
 
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
