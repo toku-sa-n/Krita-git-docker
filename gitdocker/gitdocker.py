@@ -14,14 +14,33 @@ from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QPushButton, QVBoxLayout, QWidget)
 
 
+class TrackedDocument():
+    def __init__(self):
+        path = active_document_path()
+
+        if not path:
+            raise ValueError("The current document has an invalid path.")
+
+        self.path = path
+
+        self.repo = Repo(self.path, search_parent_directories=True)
+
+        max_items = 10
+        self.commits = list(itertools.islice(
+            self.repo.iter_commits(paths=self.path), max_items))
+
+    def is_krita_file(self):
+        extension = Path(self.path).suffix
+
+        return extension in ['.kra', '.krz']
+
+
 class GitDocker(DockWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Git docker")
 
-        self.repo = None
-        self.path = None
-        self.commits = []
+        self.document = None
         self.file_handlers = []
 
         self.image_label = QLabel('')
@@ -64,28 +83,18 @@ class GitDocker(DockWidget):
         self.update_commits_and_combo_box()
 
     def update_commits_and_combo_box(self):
-        self.path = active_document_path()
-
-        if self.path is None or self.path == '':
-            self.show_git_repository_not_found()
-            return
-
         try:
-            self.repo = Repo(self.path, search_parent_directories=True)
-        except InvalidGitRepositoryError:
-            self.repo = None
+            self.document = TrackedDocument()
+        except (ValueError, InvalidGitRepositoryError):
             self.show_git_repository_not_found()
             return
-
-        max_items = 10
-        self.commits = list(itertools.islice(
-            self.repo.iter_commits(paths=self.path), max_items))
 
         self.commit_combo_box.clear()
-        self.commit_combo_box.addItems(map(lambda c: c.summary, self.commits))
+        self.commit_combo_box.addItems(
+            map(lambda c: c.summary, self.document.commits))
         self.message_label.clear()
 
-        if not self.commits:
+        if self.commit_combo_box.count() == 0:
             self.message_label.setText('This file is not tracked.')
 
     def set_thumbnail(self, hexsha):
@@ -105,7 +114,7 @@ class GitDocker(DockWidget):
 
         thumbnail = None
 
-        if is_krita_file(self.path):
+        if self.document.is_krita_file():
             thumbnail = fetch_thumbnail_from_krita_file(raw)
         else:
             thumbnail = QImage.fromData(raw)
@@ -118,25 +127,23 @@ class GitDocker(DockWidget):
         return thumbnail.scaled(thumbsize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def get_revision(self, hexsha):
-        if self.path is None or self.path == '':
+        if not self.document:
             return None
 
-        if self.repo is None:
-            return None
-
-        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
+        relpath = os.path.relpath(
+            self.document.path, self.document.repo.working_tree_dir)
 
         # Do not use GitPython's show command because it has a bug and
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
         command = ["git", "show", "%s:%s" % (hexsha, relpath)]
-        with subprocess.Popen(command, stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir) as p:
+        with subprocess.Popen(command, stdout=subprocess.PIPE, cwd=self.document.repo.working_tree_dir) as p:
             out, _ = p.communicate()
             return out
 
     def commit_combo_box_current_index_changed(self, index):
         if index != -1:
-            self.set_thumbnail(self.commits[index].hexsha)
+            self.set_thumbnail(self.document.commits[index].hexsha)
 
     def open_button_clicked(self):
         if self.commit_combo_box.count() == 0:
@@ -144,7 +151,7 @@ class GitDocker(DockWidget):
 
         fp = tempfile.NamedTemporaryFile()
         raw = self.get_revision(
-            self.commits[self.commit_combo_box.currentIndex()])
+            self.document.commits[self.commit_combo_box.currentIndex()])
 
         fp.write(raw)
 
@@ -156,11 +163,7 @@ class GitDocker(DockWidget):
         self.update_commits_and_combo_box()
 
     def commit(self):
-        if self.repo is None:
-            return
-
-        if self.path is None or self.path == '':
-            self.message_label.setText('Save your file first.')
+        if not self.document:
             return
 
         if self.commit_message_box.text() == '':
@@ -171,8 +174,8 @@ class GitDocker(DockWidget):
             self.message_label.setText('File is not changed.')
             return
 
-        self.repo.index.add([self.path])
-        self.repo.index.commit(self.commit_message_box.text())
+        self.document.repo.index.add([self.document.path])
+        self.document.repo.index.commit(self.commit_message_box.text())
 
         self.commit_message_box.clear()
 
@@ -180,30 +183,19 @@ class GitDocker(DockWidget):
         self.message_label.setText('Committed.')
 
     def is_modified_or_untracked(self):
-        assert self.repo is not None
-        assert self.path is not None
-
-        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
+        relpath = os.path.relpath(
+            self.document.path, self.document.repo.working_tree_dir)
 
         return relpath in self.modified_or_untracked_files()
 
     def modified_or_untracked_files(self):
-        assert self.repo is not None
-        assert self.path is not None
-
         return self.untracked_files()+self.files_different_from_head()
 
     def untracked_files(self):
-        assert self.repo is not None
-        assert self.path is not None
-
-        return self.repo.git.execute(['git', 'ls-files', '--others', '--exclude-standard']).splitlines()
+        return self.document.repo.git.execute(['git', 'ls-files', '--others', '--exclude-standard']).splitlines()
 
     def files_different_from_head(self):
-        assert self.repo is not None
-        assert self.path is not None
-
-        return self.repo.git.diff('HEAD', name_only=True).splitlines()
+        return self.document.repo.git.diff('HEAD', name_only=True).splitlines()
 
     def show_git_repository_not_found(self):
         self.image_label.clear()
@@ -224,12 +216,6 @@ def retrieve_commits_including_path(path):
     repo = Repo(path, search_parent_directories=True)
 
     return repo.iter_commits(paths=path)
-
-
-def is_krita_file(path):
-    extension = Path(path).suffix
-
-    return extension in ['.kra', '.krz']
 
 
 def fetch_thumbnail_from_krita_file(raw):
