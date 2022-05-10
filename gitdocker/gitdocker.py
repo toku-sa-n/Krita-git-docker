@@ -45,6 +45,20 @@ class TrackedDocument():
             out, _ = p.communicate()
             return out
 
+    def is_modified_or_untracked(self):
+        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
+
+        return relpath in self.modified_or_untracked_files()
+
+    def modified_or_untracked_files(self):
+        return self.untracked_files()+self.files_different_from_head()
+
+    def untracked_files(self):
+        return self.repo.git.execute(['git', 'ls-files', '--others', '--exclude-standard']).splitlines()
+
+    def files_different_from_head(self):
+        return self.repo.git.diff('HEAD', name_only=True).splitlines()
+
 
 class GitDocker(DockWidget):
     def __init__(self):
@@ -166,7 +180,7 @@ class GitDocker(DockWidget):
             self.message_label.setText('Commit message is empty.')
             return
 
-        if not self.is_modified_or_untracked():
+        if not self.document.is_modified_or_untracked():
             self.message_label.setText('File is not changed.')
             return
 
@@ -177,21 +191,6 @@ class GitDocker(DockWidget):
 
         self.update_commits_and_combo_box()
         self.message_label.setText('Committed.')
-
-    def is_modified_or_untracked(self):
-        relpath = os.path.relpath(
-            self.document.path, self.document.repo.working_tree_dir)
-
-        return relpath in self.modified_or_untracked_files()
-
-    def modified_or_untracked_files(self):
-        return self.untracked_files()+self.files_different_from_head()
-
-    def untracked_files(self):
-        return self.document.repo.git.execute(['git', 'ls-files', '--others', '--exclude-standard']).splitlines()
-
-    def files_different_from_head(self):
-        return self.document.repo.git.diff('HEAD', name_only=True).splitlines()
 
     def show_git_repository_not_found(self):
         self.image_label.clear()
