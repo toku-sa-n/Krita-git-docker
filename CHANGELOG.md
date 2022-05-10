@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Trying to commit an unsaved document caused an error but it is now fixed.
 
 ## [0.1.0] - 2022-04-03
 ### Added
