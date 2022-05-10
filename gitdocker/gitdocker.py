@@ -212,12 +212,6 @@ def active_document_path():
         return None
 
 
-def retrieve_commits_including_path(path):
-    repo = Repo(path, search_parent_directories=True)
-
-    return repo.iter_commits(paths=path)
-
-
 def fetch_thumbnail_from_krita_file(raw):
     with zipfile.ZipFile(BytesIO(raw), "r") as uncompressed:
         try:
