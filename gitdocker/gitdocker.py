@@ -45,6 +45,17 @@ class TrackedDocument():
             out, _ = p.communicate()
             return out
 
+    def commit(self, message):
+        if not message:
+            raise ValueError("The commit message is empty.")
+
+        if not self.is_modified_or_untracked():
+            raise RuntimeError(
+                "This document is neither modified nor untracked.")
+
+        self.repo.index.add([self.path])
+        self.repo.index.commit(message)
+
     def is_modified_or_untracked(self):
         relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
 
@@ -173,22 +184,16 @@ class GitDocker(DockWidget):
         self.update_commits_and_combo_box()
 
     def commit(self):
-        if not self.document:
-            return
-
-        if self.commit_message_box.text() == '':
+        try:
+            self.document.commit(self.commit_message_box.text())
+        except ValueError:
             self.message_label.setText('Commit message is empty.')
             return
-
-        if not self.document.is_modified_or_untracked():
+        except RuntimeError:
             self.message_label.setText('File is not changed.')
             return
 
-        self.document.repo.index.add([self.document.path])
-        self.document.repo.index.commit(self.commit_message_box.text())
-
         self.commit_message_box.clear()
-
         self.update_commits_and_combo_box()
         self.message_label.setText('Committed.')
 
