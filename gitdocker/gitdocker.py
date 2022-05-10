@@ -170,7 +170,7 @@ class GitDocker(DockWidget):
             return
 
         fp = tempfile.NamedTemporaryFile()
-        raw = self.get_revision(
+        raw = self.document.get_revision(
             self.document.commits[self.commit_combo_box.currentIndex()])
 
         fp.write(raw)
