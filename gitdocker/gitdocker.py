@@ -29,11 +29,6 @@ class TrackedDocument():
         self.commits = list(itertools.islice(
             self.repo.iter_commits(paths=self.path), max_items))
 
-    def is_krita_file(self):
-        extension = Path(self.path).suffix
-
-        return extension in ['.kra', '.krz']
-
     def get_revision(self, hexsha):
         relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
 
@@ -55,6 +50,11 @@ class TrackedDocument():
 
         self.repo.index.add([self.path])
         self.repo.index.commit(message)
+
+    def is_krita_file(self):
+        extension = Path(self.path).suffix
+
+        return extension in ['.kra', '.krz']
 
     def is_modified_or_untracked(self):
         relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
