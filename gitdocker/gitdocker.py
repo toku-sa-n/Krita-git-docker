@@ -109,10 +109,16 @@ class GitDocker(DockWidget):
         self.open_button = QPushButton("Open")
         self.open_button.clicked.connect(self.open_button_handler)
 
+        self.recover_button = QPushButton("Recover")
+
         self.commit_message_box = QLineEdit()
 
         self.commit_button = QPushButton("Commit")
         self.commit_button.clicked.connect(self.commit_button_handler)
+
+        self.buttons_layout = QHBoxLayout()
+        self.buttons_layout.addWidget(self.open_button)
+        self.buttons_layout.addWidget(self.recover_button)
 
         self.commit_layout = QHBoxLayout()
         self.commit_layout.addWidget(self.commit_message_box)
@@ -122,7 +128,7 @@ class GitDocker(DockWidget):
         self.layout.addWidget(self.image_label)
         self.layout.addWidget(self.message_label)
         self.layout.addWidget(self.commit_combo_box)
-        self.layout.addWidget(self.open_button)
+        self.layout.addLayout(self.buttons_layout)
         self.layout.addLayout(self.commit_layout)
 
         self.widget = QWidget()
