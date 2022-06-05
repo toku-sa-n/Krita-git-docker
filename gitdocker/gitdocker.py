@@ -8,7 +8,7 @@ from pathlib import Path
 
 from git import InvalidGitRepositoryError, Repo
 from krita import (DockWidget, DockWidgetFactory, DockWidgetFactoryBase, Krita,
-                   QImage, QPixmap, QSize)
+                   QImage, QPixmap, QSize, QMessageBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QPushButton, QVBoxLayout, QWidget)
@@ -70,6 +70,9 @@ class TrackedDocument():
         self.repo.index.add([self.path])
         self.repo.index.commit(message)
 
+    def restore(self, hexsha):
+        self.repo.git.restore(self.path, source=hexsha)
+
     def is_krita_file(self):
         extension = Path(self.path).suffix
 
@@ -109,7 +112,8 @@ class GitDocker(DockWidget):
         self.open_button = QPushButton("Open")
         self.open_button.clicked.connect(self.open_button_handler)
 
-        self.recover_button = QPushButton("Recover")
+        self.restore_button = QPushButton("Restore")
+        self.restore_button.clicked.connect(self.restore_button_handler)
 
         self.commit_message_box = QLineEdit()
 
@@ -118,7 +122,7 @@ class GitDocker(DockWidget):
 
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.addWidget(self.open_button)
-        self.buttons_layout.addWidget(self.recover_button)
+        self.buttons_layout.addWidget(self.restore_button)
 
         self.commit_layout = QHBoxLayout()
         self.commit_layout.addWidget(self.commit_message_box)
@@ -187,6 +191,25 @@ class GitDocker(DockWidget):
         Krita.instance().activeWindow().addView(doc)
 
         self.update_commits_and_combo_box()
+
+    def restore_button_handler(self):
+        if self.commit_combo_box.count() == 0:
+            return
+
+        msg_box_ans = QMessageBox.question(
+            None,
+            "Git Docker",
+            "Restoring a previous edition overrides the current one. Do you want to continue?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if msg_box_ans == QMessageBox.Yes:
+            path = Krita.instance().activeDocument().fileName()
+            hexsha = self.document.commits[self.commit_combo_box.currentIndex(
+            )]
+            self.document.restore(hexsha)
+            closed = Krita.instance().activeDocument().close()
+            if closed:
+                Krita.instance().openDocument(path)
 
     def commit_button_handler(self):
         try:
