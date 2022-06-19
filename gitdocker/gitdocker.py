@@ -1,6 +1,7 @@
 import itertools
 import os
 import subprocess
+import platform
 import tempfile
 import zipfile
 from io import BytesIO
@@ -64,12 +65,14 @@ class TrackedDocument:
         return thumbnail.scaled(thumbSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def get_revision(self, hexsha):
-        relpath = os.path.relpath(self.path, self.repo.working_tree_dir)
-
         # Do not use GitPython's show command because it has a bug and
         # truncates the last '\n', making the output invalid. See
         # https://stackoverflow.com/questions/71672179/the-file-is-not-a-zip-file-error-for-the-output-of-git-show-by-gitpython
-        command = ["git", "show", "%s:%s" % (hexsha, relpath)]
+        command = [
+            "git",
+            "show",
+            "%s:%s" % (hexsha, self.get_relative_path_in_unix_style()),
+        ]
         with subprocess.Popen(
             command, stdout=subprocess.PIPE, cwd=self.repo.working_tree_dir
         ) as p:
@@ -106,6 +109,14 @@ class TrackedDocument:
 
     def files_different_from_head(self):
         return self.repo.git.diff("HEAD", name_only=True).splitlines()
+
+    # Git accepts only the Unix-style paths even if it runs on Windows.
+    def get_relative_path_in_unix_style(self):
+        p = os.path.relpath(self.path, self.repo.working_tree_dir)
+        if platform.system() == "Windows":
+            return p.replace("\\", "/")
+        else:
+            return p
 
 
 class GitDocker(DockWidget):
